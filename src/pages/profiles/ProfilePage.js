@@ -11,6 +11,7 @@ import styles from "../../styles/ProfilePage.module.css";
 import appStyles from "../../App.module.css";
 import btnStyles from "../../styles/Button.module.css";
 
+import { ProfileEditDropdown } from "../../components/MoreDropdown";
 import PopularProfiles from "./PopularProfiles";
 import { useCurrentUser } from "../../contexts/CurrentUserContext";
 import { useParams } from "react-router-dom/cjs/react-router-dom.min";
@@ -25,7 +26,7 @@ function ProfilePage() {
     const [hasLoaded, setHasLoaded] = useState(false);
     const currentUser = useCurrentUser();
     const { id } = useParams();
-    const setProfileData = useSetProfileData();
+    const {setProfileData, handleFollow, handleUnfollow} = useSetProfileData();
     const { pageProfile } = useProfileData();
     const [profile] = pageProfile.results;
     const is_owner = currentUser?.username === profile?.owner;
@@ -54,6 +55,7 @@ function ProfilePage() {
 
     const mainProfile = (
         <>
+            {profile?.is_owner && <ProfileEditDropdown id={profile?.id} />}
             <Row noGutters className="px-3 text-center">
                 <Col lg={3} className="text-lg-left">
                     <Image className={styles.ProfileImage}
@@ -81,10 +83,10 @@ function ProfilePage() {
                         {currentUser && !is_owner && (
                             profile?.following_id ? (
                                 <Button className={`${btnStyles.Button} ${btnStyles.BlackOutline}`}
-                                    onClick={() => { }}>Unfollow</Button>
+                                    onClick={() => handleUnfollow(profile)}>Unfollow</Button>
                             ) : (
                                 <Button className={`${btnStyles.Button} ${btnStyles.Black}`}
-                                    onClick={() => { }}>Follow</Button>
+                                    onClick={() => handleFollow(profile)}>Follow</Button>
                             )
                         )}
                     </div>
