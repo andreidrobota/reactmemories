@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
@@ -16,43 +16,45 @@ import appStyles from "../../App.module.css";
 import axios from "axios";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { useSetCurrentUser } from "../../contexts/CurrentUserContext";
+import { useRedirect } from "../../hooks/useRedirect";
 
 function SignInForm() {
-//   Add your component logic here
+  //   Add your component logic here
 
   const setCurrentUser = useSetCurrentUser();
+  useRedirect('loggedIn')
 
 
-    const [signInData, setSignInData] = useState({
-        username:"",
-        password:"",
-    })
+  const [signInData, setSignInData] = useState({
+    username: "",
+    password: "",
+  })
 
-    const {username, password} = signInData;
+  const { username, password } = signInData;
 
 
-    const handleChange = (event) => {
-        setSignInData({
-            ...signInData,
-            [event.target.name]: event.target.value,
-        });
+  const handleChange = (event) => {
+    setSignInData({
+      ...signInData,
+      [event.target.name]: event.target.value,
+    });
+  }
+
+  const history = useHistory()
+
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const { data } = await axios.post('/dj-rest-auth/login/', signInData);
+      setCurrentUser(data.user)
+      history.goBack();
+    } catch (err) {
+      setErrors(err.response?.data);
     }
+  }
 
-    const history = useHistory()
-
-
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        try {
-            const {data} = await axios.post('/dj-rest-auth/login/', signInData);
-            setCurrentUser(data.user)
-            history.push("/")
-        } catch (err) {
-            setErrors(err.response?.data);
-        }
-    }
-
-    const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState({})
 
 
   return (
@@ -61,47 +63,47 @@ function SignInForm() {
         <Container className={`${appStyles.Content} p-4 `}>
           <h1 className={styles.Header}>sign in</h1>
           <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="username">
-                    <Form.Label className="d-none">Username</Form.Label>
-                    <Form.Control 
-                    type="text" 
-                    placeholder="Username"
-                    name="username"
-                    className={styles.Input}
-                    value={username}
-                    onChange={handleChange}
-                    />
-                </Form.Group>
-                {errors.username?.map((message, idx) => (
-                    <Alert variant="warning" key={idx}>
-                        {message}
-                    </Alert>
-                ))}
-                <Form.Group controlId="password">
-                    <Form.Label className="d-none">Password</Form.Label>
-                    <Form.Control 
-                    type="password" 
-                    placeholder="Password"
-                    name="password"
-                    className={styles.Input}
-                    value={password}
-                    onChange={handleChange}
-                    />
-                </Form.Group>
-                {errors.password?.map((message, idx) => (
-                    <Alert variant="warning" key={idx}>
-                        {message}
-                    </Alert>
-                ))}
-                <Button className={`${btnStyles.Button} ${btnStyles.Wide} ${btnStyles.Bright}`} type="submit">
-                      Sign In
-                </Button>
-                {errors.non_field_errors?.map((message, idx) =>(
-                    <Alert variant="warning" key={idx} className="mt-3">
-                        {message}
-                    </Alert>
-                ))}
-            </Form>
+            <Form.Group controlId="username">
+              <Form.Label className="d-none">Username</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Username"
+                name="username"
+                className={styles.Input}
+                value={username}
+                onChange={handleChange}
+              />
+            </Form.Group>
+            {errors.username?.map((message, idx) => (
+              <Alert variant="warning" key={idx}>
+                {message}
+              </Alert>
+            ))}
+            <Form.Group controlId="password">
+              <Form.Label className="d-none">Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Password"
+                name="password"
+                className={styles.Input}
+                value={password}
+                onChange={handleChange}
+              />
+            </Form.Group>
+            {errors.password?.map((message, idx) => (
+              <Alert variant="warning" key={idx}>
+                {message}
+              </Alert>
+            ))}
+            <Button className={`${btnStyles.Button} ${btnStyles.Wide} ${btnStyles.Bright}`} type="submit">
+              Sign In
+            </Button>
+            {errors.non_field_errors?.map((message, idx) => (
+              <Alert variant="warning" key={idx} className="mt-3">
+                {message}
+              </Alert>
+            ))}
+          </Form>
 
         </Container>
         <Container className={`mt-3 ${appStyles.Content}`}>
